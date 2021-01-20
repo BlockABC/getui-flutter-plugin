@@ -142,7 +142,7 @@
     // 显示APNs信息到页面
     NSString *record = [NSString stringWithFormat:@"[APN]%@, %@", [NSDate date], userInfo];
     NSLog(@"%@",record);
-    [_channel invokeMethod:@"onReceiveNotificationResponse" arguments:record];
+    [_channel invokeMethod:@"onReceiveNotificationResponse" arguments:userInfo];
     completionHandler(UIBackgroundFetchResultNewData);
 }
 
@@ -246,7 +246,7 @@
     if (payloadData) {
         payloadMsg = [[NSString alloc] initWithBytes:payloadData.bytes length:payloadData.length encoding:NSUTF8StringEncoding];
     }
-    NSDictionary *payloadMsgDic = @{ @"taskId": taskId ?: @"", @"messageId": msgId ?: @"", @"payloadMsg" : payloadMsg, @"offLine" : @(offLine)};
+    NSDictionary *payloadMsgDic = @{ @"taskId": taskId ?: @"", @"messageId": msgId ?: @"", @"payload" : payloadMsg, @"offLine" : @(offLine)};
     [_channel invokeMethod:@"onReceivePayload" arguments:payloadMsgDic];
     NSLog(@"%@",payloadMsg);
 }
