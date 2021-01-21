@@ -115,6 +115,15 @@
     return YES;
 }
 
+
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    [GeTuiSdk resetBadge]; //重置角标计数
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0]; // APP 清空角标
+}
+
+
 #pragma mark - 远程通知(推送)回调
 
 /** 远程通知注册成功委托 */
@@ -141,7 +150,6 @@
     
     // 显示APNs信息到页面
     NSString *record = [NSString stringWithFormat:@"[APN]%@, %@", [NSDate date], userInfo];
-    NSLog(@"%@",record);
     [_channel invokeMethod:@"onReceiveNotificationResponse" arguments:userInfo];
     completionHandler(UIBackgroundFetchResultNewData);
 }
