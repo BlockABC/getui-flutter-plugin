@@ -6,28 +6,31 @@ typedef Future<dynamic> EventHandler(String res);
 typedef Future<dynamic> EventHandlerMap(Map<String, dynamic> event);
 
 class Getuiflut {
-
   static const MethodChannel _channel = const MethodChannel('getuiflut');
 
   EventHandler _onReceiveClientId;
   EventHandlerMap _onReceiveMessageData;
   EventHandlerMap _onNotificationMessageArrived;
   EventHandlerMap _onNotificationMessageClicked;
-
+  EventHandler _onNotificationClick;
 
   // deviceToken
   EventHandler _onRegisterDeviceToken;
+
   // voipToken
   EventHandler _onRegisterVoipToken;
+
   //  iOS收到的透传内容
   EventHandlerMap _onReceivePayload;
+
   // ios 收到APNS消息
   EventHandlerMap _onReceiveNotificationResponse;
+
   // ios 收到AppLink消息
   EventHandler _onAppLinkPayload;
+
   // ios 收到VOIP消息
   EventHandlerMap _onReceiveVoipPayLoad;
-
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
@@ -54,57 +57,69 @@ class Getuiflut {
   }
 
   void turnOffPush() {
-    if(Platform.isAndroid) {
-       _channel.invokeMethod('stopPush');
+    if (Platform.isAndroid) {
+      _channel.invokeMethod('stopPush');
+    }
+  }
+
+  void showNotification({String title, String des, String data}) {
+    if (Platform.isAndroid) {
+      Map<String, dynamic> map = {};
+      map['title'] = title;
+      map['des'] = des;
+      map['data'] = data;
+      _channel.invokeMethod(
+        'showNotification',
+        map,
+      );
     }
   }
 
   void onActivityCreate() {
     _channel.invokeMethod('onActivityCreate');
   }
-  
-  void bindAlias(String alias,String sn) {
-    if(Platform.isAndroid) {
-      _channel.invokeMethod('bindAlias',<String,dynamic>{'alias':alias});
+
+  void bindAlias(String alias, String sn) {
+    if (Platform.isAndroid) {
+      _channel.invokeMethod('bindAlias', <String, dynamic>{'alias': alias});
     } else {
-      _channel.invokeMethod('bindAlias',<String,dynamic>{'alias':alias,'aSn':sn});
+      _channel.invokeMethod(
+          'bindAlias', <String, dynamic>{'alias': alias, 'aSn': sn});
     }
   }
 
-  void unbindAlias(String alias,String sn,bool isSelf) {
-    if(Platform.isAndroid) {
-      _channel.invokeMethod('unbindAlias',<String,dynamic>{'alias':alias});
+  void unbindAlias(String alias, String sn, bool isSelf) {
+    if (Platform.isAndroid) {
+      _channel.invokeMethod('unbindAlias', <String, dynamic>{'alias': alias});
     } else {
-      _channel.invokeMethod('unbindAlias',<String,dynamic>{'alias':alias,'aSn':sn,'isSelf':isSelf});
+      _channel.invokeMethod('unbindAlias',
+          <String, dynamic>{'alias': alias, 'aSn': sn, 'isSelf': isSelf});
     }
   }
 
   void setBadge(int badge) {
-    if(Platform.isAndroid) {
-
+    if (Platform.isAndroid) {
     } else {
-      _channel.invokeMethod('setBadge',<String,dynamic>{'badge':badge});
+      _channel.invokeMethod('setBadge', <String, dynamic>{'badge': badge});
     }
   }
 
   void resetBadge() {
-    if(Platform.isAndroid) {
-
+    if (Platform.isAndroid) {
     } else {
       _channel.invokeMethod('resetBadge');
     }
   }
-   
-  void setLocalBadge(int badge) {
-    if(Platform.isAndroid) {
 
+  void setLocalBadge(int badge) {
+    if (Platform.isAndroid) {
     } else {
-      _channel.invokeMethod('setLocalBadge',<String,dynamic>{'badge':badge});
+      _channel.invokeMethod('setLocalBadge', <String, dynamic>{'badge': badge});
     }
   }
 
   void setTag(List<dynamic> tags) {
-    _channel.invokeMethod('setTag',<String,dynamic>{'tags':tags});
+    _channel.invokeMethod('setTag', <String, dynamic>{'tags': tags});
   }
 
   void addEventHandler({
@@ -112,7 +127,7 @@ class Getuiflut {
     EventHandlerMap onReceiveMessageData,
     EventHandlerMap onNotificationMessageArrived,
     EventHandlerMap onNotificationMessageClicked,
-
+    EventHandler onNotificationClick,
 
     //deviceToken
     EventHandler onRegisterDeviceToken,
@@ -126,7 +141,8 @@ class Getuiflut {
     EventHandler onAppLinkPayload,
     // ios 收到VOIP消息
     EventHandlerMap onReceiveVoipPayLoad,
-  }){
+  }) {
+    _onNotificationClick = onNotificationClick;
     _onReceiveClientId = onReceiveClientId;
     _onRegisterDeviceToken = onRegisterDeviceToken;
     _onRegisterVoipToken = onRegisterVoipToken;
@@ -142,23 +158,28 @@ class Getuiflut {
   }
 
   Future<Null> _handleMethod(MethodCall call) async {
-    switch(call.method) {
+    switch (call.method) {
       case "onReceiveClientId":
         print('onReceiveClientId' + call.arguments);
         return _onReceiveClientId(call.arguments);
         break;
       case "onReceiveMessageData":
         return _onReceiveMessageData(call.arguments.cast<String, dynamic>());
+      case "onNotificationClick":
+        return _onNotificationClick(call.arguments);
       case "onNotificationMessageArrived":
-        return _onNotificationMessageArrived(call.arguments.cast<String, dynamic>());
+        return _onNotificationMessageArrived(
+            call.arguments.cast<String, dynamic>());
       case "onNotificationMessageClicked":
-        return _onNotificationMessageClicked(call.arguments.cast<String, dynamic>());
+        return _onNotificationMessageClicked(
+            call.arguments.cast<String, dynamic>());
       case "onRegisterDeviceToken":
         return _onRegisterDeviceToken(call.arguments);
       case "onReceivePayload":
         return _onReceivePayload(call.arguments.cast<String, dynamic>());
       case "onReceiveNotificationResponse":
-        return _onReceiveNotificationResponse(call.arguments.cast<String, dynamic>());
+        return _onReceiveNotificationResponse(
+            call.arguments.cast<String, dynamic>());
       case "onAppLinkPayload":
         return _onAppLinkPayload(call.arguments);
       case "onRegisterVoipToken":
@@ -176,11 +197,8 @@ class Getuiflut {
     String appId,
     String appKey,
     String appSecret,
-
   }) {
-    _channel.invokeMethod('startSdk',{'appId':appId, 'appKey':appKey, 'appSecret':appSecret});
+    _channel.invokeMethod(
+        'startSdk', {'appId': appId, 'appKey': appKey, 'appSecret': appSecret});
   }
-
-
-
 }

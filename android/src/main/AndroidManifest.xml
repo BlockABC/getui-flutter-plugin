@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.getui.getuiflut">
+    package="com.getui.getuiflut">
+
     <application>
         <!-- 用户自定义服务继承自GTIntentService,作为SDK与APP桥梁服务,用来接收各种消息和命令回复 -->
         <service
@@ -11,6 +12,17 @@
             android:exported="true"
             android:label="PushService"
             android:process=":pushservice" />
+
+        <service
+            android:name="com.getui.getuiflut.NotifyService"
+            android:label="NotifyService" />
+
+        <activity
+            android:name="com.getui.getuiflut.SchemeActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"></activity>
 
     </application>
 </manifest>
